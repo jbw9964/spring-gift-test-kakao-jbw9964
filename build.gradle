@@ -37,3 +37,37 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Docker Compose + Cucumber
+def cucumberComposeFile = 'docker-compose.cucumber.yaml'
+def cucumberEnvFile = 'cucumber-test.env'
+
+tasks.register('cucumberTest', Test) {
+	group = 'verification'
+	description = 'Run Cucumber acceptance tests with Docker PostgreSQL'
+	useJUnitPlatform()
+	include '**/cucumber/**'
+	systemProperty 'spring.profiles.active', 'cucumber'
+	systemProperty 'spring.config.import', "optional:file:./${cucumberEnvFile}[.properties]"
+
+	dependsOn cucumberComposeUp
+	finalizedBy cucumberComposeDown
+}
+
+tasks.register('cucumberComposeUp', Exec) {
+	group = 'docker'
+	description = 'Start PostgreSQL container for local testing'
+	commandLine 'docker', 'compose',
+			'--env-file', cucumberEnvFile,
+			'-f', cucumberComposeFile,
+			'up', '-d', '--wait'
+}
+
+tasks.register('cucumberComposeDown', Exec) {
+	group = 'docker'
+	description = 'Stop PostgreSQL container for local testing'
+	commandLine 'docker', 'compose',
+			'--env-file', cucumberEnvFile,
+			'-f', cucumberComposeFile,
+			'down'
+}
