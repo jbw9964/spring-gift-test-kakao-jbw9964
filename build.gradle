@@ -36,6 +36,7 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	exclude '**/docker/**'
 }
 
 // Docker Compose + Cucumber
@@ -69,5 +70,49 @@ tasks.register('cucumberComposeDown', Exec) {
 	commandLine 'docker', 'compose',
 			'--env-file', cucumberEnvFile,
 			'-f', cucumberComposeFile,
+			'down'
+}
+
+// Dockerize + test
+def containerizeComposeFile = 'docker-compose.docker.yaml'
+def containerizeEnvFile = 'docker.env'
+
+tasks.register('dockerTest', Test) {
+	group = 'verification'
+	description = 'Run Cucumber acceptance tests with containerized application'
+	useJUnitPlatform()
+	include '**/docker/**'
+	systemProperty 'spring.profiles.active', 'docker-test'
+	systemProperty 'spring.config.import', "optional:file:./${containerizeEnvFile}[.properties]"
+
+	dependsOn dockerUp
+	finalizedBy dockerDown
+}
+
+tasks.register('dockerBuild', Exec) {
+	group = 'docker'
+	description = 'Build application container image'
+	commandLine 'docker', 'compose',
+			'--env-file', containerizeEnvFile,
+			'-f', containerizeComposeFile,
+			'build'
+}
+
+tasks.register('dockerUp', Exec) {
+	group = 'docker'
+	description = 'Start containerized application'
+	commandLine 'docker', 'compose',
+			'--env-file', containerizeEnvFile,
+			'-f', containerizeComposeFile,
+			'up', '-d', '--wait'
+	dependsOn dockerBuild
+}
+
+tasks.register('dockerDown', Exec) {
+	group = 'docker'
+	description = 'Stop containerized application'
+	commandLine 'docker', 'compose',
+			'--env-file', containerizeEnvFile,
+			'-f', containerizeComposeFile,
 			'down'
 }
