@@ -27,17 +27,17 @@ public class ProductStepDefinitions {
 
     // --- Given ---
 
-    @Given("상품 {string}가 가격 {int}으로 이미 존재한다")
-    public void productExistsWithPrice(String name, int price) {
-        Long categoryId = context.getLastCategoryId();
-        Product product = dataManipulator.addProduct(
-                name, price, "https://default-image.com", categoryId
-        );
-
-        context.putProductId(name, product.getId());
+    @Given("상품 {string}가 등록되어 있다.")
+    public void productExists(String name) {
+        productExistsWithPrice(name, 1000);
     }
 
-    @Given("상품 {string}가 가격 {int}, 이미지 {string}으로 존재한다")
+    @Given("상품 {string}가 가격 {int}으로 등록되어 있다.")
+    public void productExistsWithPrice(String name, int price) {
+        productExistsWithPriceAndImage(name, price, "https://default-image.com");
+    }
+
+    @Given("상품 {string}가 가격 {int}, 이미지 {string}으로 등록되어 있다.")
     public void productExistsWithPriceAndImage(String name, int price, String imageUrl) {
         Long categoryId = context.getLastCategoryId();
         Product product = dataManipulator.addProduct(name, price, imageUrl, categoryId);
@@ -76,8 +76,13 @@ public class ProductStepDefinitions {
 
     @When("카테고리 id 없이 상품 추가를 요청한다")
     public void addProductWithoutCategoryId() {
+        addProductWithoutCategoryIdDetailed("테스트 상품", 100, "https://sample.com");
+    }
+
+    @When("상품명 {string}, 가격 {int}, 이미지 {string}으로 카테고리 id 없이 상품 추가를 요청한다")
+    public void addProductWithoutCategoryIdDetailed(String name, int price, String imageUrl) {
         CreateProductRequest request = new CreateProductRequest(
-                "테스트 상품", 100, "https://sample.com", null
+                name, price, imageUrl, null
         );
 
         context.setResponse(
@@ -91,10 +96,17 @@ public class ProductStepDefinitions {
 
     @When("존재하지 않는 카테고리 id로 상품 추가를 요청한다")
     public void addProductWithNonExistentCategoryId() {
+        addProductWithNonExistentCategoryIdDetailed("테스트 상품", 100, "https://sample.com");
+    }
+
+    @When("상품명 {string}, 가격 {int}, 이미지 {string}으로 존재하지 않는 카테고리 id로 상품 추가를 요청한다")
+    public void addProductWithNonExistentCategoryIdDetailed(
+            String name, int price, String imageUrl
+    ) {
         Long notExistingId = context.getNotExistingId();
 
         CreateProductRequest request = new CreateProductRequest(
-                "테스트 상품", 100, "https://sample.com", notExistingId
+                name, price, imageUrl, notExistingId
         );
 
         context.setResponse(
@@ -108,18 +120,6 @@ public class ProductStepDefinitions {
 
     @When("가격 {int}으로 상품 추가를 요청한다")
     public void addProductWithPrice(int price) {
-        Long categoryId = context.getLastCategoryId();
-
-        CreateProductRequest request = new CreateProductRequest(
-                "테스트 상품", price, "https://sample.com", categoryId
-        );
-
-        context.setResponse(
-                given()
-                        .contentType(ContentType.JSON)
-                        .body(request)
-                        .when()
-                        .post("/api/products")
-        );
+        addProduct("테스트 상품", price, "https://sample.com");
     }
 }

@@ -27,7 +27,7 @@ public class CategoryStepDefinitions {
 
     // --- Given ---
 
-    @Given("카테고리 {string}가 이미 존재한다")
+    @Given("카테고리 {string}가 등록되어 있다.")
     public void categoryExists(String name) {
         Category category = dataManipulator.addCategory(name);
 
