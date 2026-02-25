@@ -1,17 +1,8 @@
+# 컨테이너 (docker compose 내) 환경에서 테스트를 위한 프로필
+
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-
-    properties:
-      hibernate:
-        format_sql: true
-        highlight_sql: true
-        use_sql_comments: true
-        globally_quoted_identifiers: true
-
   datasource:
-    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+    url: jdbc:postgresql://localhost:2345/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
 

@@ -1,15 +1,6 @@
+# 컨테이너 환경에서 돌아가는 프로필
+
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: update
-
-    properties:
-      hibernate:
-        format_sql: true
-        highlight_sql: true
-        use_sql_comments: true
-        globally_quoted_identifiers: true
-
   datasource:
     url: jdbc:postgresql://postgresql:5432/${POSTGRES_DB}
     username: ${POSTGRES_USER}
