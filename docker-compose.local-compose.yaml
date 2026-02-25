@@ -1,11 +1,11 @@
-name: cucumber-test-compose
+name: local-compose
 
 services:
   postgresql:
     container_name: postgresql
     image: postgres:alpine
 
-    env_file: cucumber-test.env
+    env_file: local-compose.env
 
     ports:
       - "5432:5432"

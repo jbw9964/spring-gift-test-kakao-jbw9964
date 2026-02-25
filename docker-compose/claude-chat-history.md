@@ -182,7 +182,7 @@ tasks.named('test') {
 }
 
 // Docker Compose + Cucumber
-def cucumberComposeFile = 'docker-compose.cucumber.yaml'
+def cucumberComposeFile = 'docker-compose.local-compose.yaml'
 def cucumberEnvFile = 'cucumber-test.env'
 
 tasks.register('cucumberComposeUp', Exec) {

@@ -40,37 +40,41 @@ tasks.named('test') {
 }
 
 // Docker Compose + Cucumber
-def cucumberComposeFile = 'docker-compose.cucumber.yaml'
-def cucumberEnvFile = 'cucumber-test.env'
+def cucumberTestComposeFile = 'docker-compose.cucumber-test.yaml'
+def cucumberTestEnvFile = 'cucumber-test.env'
 
 tasks.register('cucumberTest', Test) {
-	group = 'verification'
-	description = 'Run Cucumber acceptance tests with Docker PostgreSQL'
-	useJUnitPlatform()
-	include '**/cucumber/**'
-	systemProperty 'spring.profiles.active', 'cucumber'
-	systemProperty 'spring.config.import', "optional:file:./${cucumberEnvFile}[.properties]"
+    group = 'verification'
+    description = 'Run Cucumber acceptance tests with composed PostgreSQL container'
 
-	dependsOn cucumberComposeUp
-	finalizedBy cucumberComposeDown
+    useJUnitPlatform()
+    include '**/cucumber/**'
+
+    systemProperty 'spring.profiles.active', 'cucumber-test'
+    systemProperty 'spring.config.import', "optional:file:./${cucumberTestEnvFile}[.properties]"
+
+    dependsOn cucumberComposeUp
+    finalizedBy cucumberComposeDown
 }
 
 tasks.register('cucumberComposeUp', Exec) {
-	group = 'docker'
-	description = 'Start PostgreSQL container for local testing'
-	commandLine 'docker', 'compose',
-			'--env-file', cucumberEnvFile,
-			'-f', cucumberComposeFile,
-			'up', '-d', '--wait'
+    group = 'util'
+    description = 'Start PostgreSQL container for cucumber test'
+
+    commandLine 'docker', 'compose',
+            '--env-file', cucumberTestEnvFile,
+            '-f', cucumberTestComposeFile,
+            'up', '-d', '--wait'
 }
 
 tasks.register('cucumberComposeDown', Exec) {
-	group = 'docker'
-	description = 'Stop PostgreSQL container for local testing'
-	commandLine 'docker', 'compose',
-			'--env-file', cucumberEnvFile,
-			'-f', cucumberComposeFile,
-			'down'
+    group = 'util'
+    description = 'Stop PostgreSQL container for cucumber test'
+
+    commandLine 'docker', 'compose',
+            '--env-file', cucumberTestEnvFile,
+            '-f', cucumberTestComposeFile,
+            'down'
 }
 
 // Dockerize + test
